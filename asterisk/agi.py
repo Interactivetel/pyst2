@@ -160,10 +160,17 @@ class AGI:
         command = command.strip()
         command = '%s %s' % (command, ' '.join(map(str, args)))
         command = command.strip()
+
         if command[-1] != '\n':
             command += '\n'
-        self.stderr.write('    COMMAND: %s' % command)
-        self.stdout.write(command)
+
+        if PY3:
+            self.stderr.write('    COMMAND: %s' % command.encode("utf8"))
+            self.stdout.write(command.encode("utf8"))
+        else:
+            self.stderr.write('    COMMAND: %s' % command)
+            self.stdout.write(command)
+
         self.stdout.flush()
 
     def get_result(self, stdin=sys.stdin):
