@@ -37,6 +37,13 @@ re_code = re.compile(r"(^\d*)\s*(.*)")
 re_kv = re.compile(r"(?P<key>\w+)=(?P<value>[^\s]+)\s*(?:\((?P<data>.*)\))*")
 
 
+def parse_int(input: str):
+    try:
+        return int(input)
+    except:  # noqa
+        return 0
+
+
 class AGIException(Exception):
     pass
 
@@ -197,9 +204,11 @@ class AGI:
         m = re_code.search(line)
         if m:
             code, response = m.groups()
-            code = int(code)
+            code = parse_int(code)
 
-        if code == 200:
+        if code == 0 and str(response).lower() == "hangup":
+            raise AGIResultHangup("User hungup during execution")
+        elif code == 200:
             for key, value, data in re_kv.findall(response):
                 result[key] = (value, data)
 
