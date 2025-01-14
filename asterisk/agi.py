@@ -476,11 +476,11 @@ class AGI:
             except:  # noqa
                 raise AGIError("Unable to convert result to char: %s" % res)
 
-    def get_data(self, filename, timeout=DEFAULT_TIMEOUT, max_digits=255):
+    def get_data(self, filename, timeout=DEFAULT_TIMEOUT, max_digits=255, session_id: str = None):
         """agi.get_data(filename, timeout=DEFAULT_TIMEOUT, max_digits=255) --> digits
         Stream the given file and receive dialed digits
         """
-        result = self.execute("GET DATA", filename, timeout, max_digits)
+        result = self.execute("GET DATA", filename, timeout, max_digits, session_id=session_id)
         res, value = result["result"]
         return res
 
@@ -577,13 +577,13 @@ class AGI:
         """
         self.execute("HANGUP", channel)
 
-    def appexec(self, application, options=""):
+    def appexec(self, application, options="", session_id: str = None):
         """agi.appexec(application, options='')
         Executes <application> with given <options>.
         Returns whatever the application returns, or -2 on failure to find
         application
         """
-        result = self.execute("EXEC", application, self._quote(options))
+        result = self.execute("EXEC", application, self._quote(options), session_id=session_id)
         res = result["result"][0]
         if res == "-2":
             raise AGIAppError("Unable to find application: %s" % application)
