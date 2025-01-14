@@ -621,7 +621,7 @@ class AGI:
 
     def set_variable(self, name, value, session_id: str = None):
         """Set a channel variable."""
-        self.execute("SET VARIABLE", self._quote(name), self._quote(value))
+        self.execute("SET VARIABLE", self._quote(name), self._quote(value), session_id=session_id)
 
     def get_variable(self, name, session_id: str = None):
         """Get a channel variable.
