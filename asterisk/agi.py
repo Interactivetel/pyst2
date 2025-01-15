@@ -92,6 +92,10 @@ class AGIInvalidCommand(AGIError):
     pass
 
 
+class AGICommandTimeout(AGIError):
+    pass
+
+
 class AGI:
     """
     This class encapsulates communication between Asterisk an a python script.
@@ -157,7 +161,7 @@ class AGI:
 
         try:
             self.send_command(command, *args, **kwargs)
-            return self.get_result()
+            return self.get_result(**kwargs)
         except IOError as e:
             if e.errno == 32:
                 # Broken Pipe * let us go
@@ -193,8 +197,10 @@ class AGI:
 
             raise
 
-    def get_result(self, stdin=sys.stdin):
+    def get_result(self, stdin=sys.stdin, **kwargs):
         """Read the result of a command from Asterisk"""
+        session_id = kwargs.get("session_id")
+
         code = 0
         result = {"result": ("", "")}
         line = self.stdin.readline().strip()
@@ -208,6 +214,8 @@ class AGI:
 
         if code == 0 and str(response).lower() == "hangup":
             raise AGIResultHangup("User hungup during execution")
+        elif code == 200 and str(response).lower() == "result= (timeout)":
+            raise AGICommandTimeout()
         elif code == 200:
             for key, value, data in re_kv.findall(response):
                 result[key] = (value, data)
@@ -219,7 +227,7 @@ class AGI:
                 if key == "result" and value == "-1":
                     raise AGIAppError("Error executing application, or hangup")
 
-            self.stderr.write("    RESULT_DICT: %s\n" % pprint.pformat(result))
+            self.stderr.write(f" ({session_id}) RESULT_DICT: {result}\n")
             return result
         elif code == 510:
             raise AGIInvalidCommand(response)
