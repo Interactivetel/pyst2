@@ -215,7 +215,7 @@ class AGI:
         if code == 0 and str(response).lower() == "hangup":
             raise AGIResultHangup("User hungup during execution")
         elif code == 200 and str(response).lower() == "result= (timeout)":
-            raise AGICommandTimeout()
+            raise AGICommandTimeout("Timeout")
         elif code == 200:
             for key, value, data in re_kv.findall(response):
                 result[key] = (value, data)
