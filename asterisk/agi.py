@@ -246,6 +246,8 @@ class AGI:
             usage.append(line)
             usage = "%s\n" % "\n".join(usage)
             raise AGIUsageError(usage)
+        elif code == 511:
+            raise AGIUnknownError(code, response)
         else:
             raise AGIUnknownError(code, "Unhandled code or undefined response")
 
