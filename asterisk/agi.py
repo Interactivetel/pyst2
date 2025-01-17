@@ -118,12 +118,8 @@ class AGI:
     def _get_agi_env(self):
         while 1:
             line = self.stdin.readline().strip()
-            if PY3:
-                if type(line) is bytes:
-                    line = line.decode("utf8")
-            self.stderr.write("ENV LINE: ")
-            self.stderr.write(line)
-            self.stderr.write("\n")
+            if PY3 and type(line) is bytes:
+                line = line.decode("utf8")
             if line == "":
                 # blank line signals end
                 break
@@ -132,9 +128,6 @@ class AGI:
             data = data.strip()
             if key != "":
                 self.env[key] = data
-        self.stderr.write("class AGI: self.env = ")
-        self.stderr.write(pprint.pformat(self.env))
-        self.stderr.write("\n")
 
     def _quote(self, string):
         """provides double quotes to string, converts int/bool to string"""
@@ -518,13 +511,13 @@ class AGI:
             except:  # noqa
                 raise AGIError("Unable to convert result to char: %s" % res)
 
-    def set_context(self, context):
+    def set_context(self, context, session_id: str = None):
         """agi.set_context(context)
         Sets the context for continuation upon exiting the application.
         No error appears to be produced.  Does not set exten or priority
         Use at your own risk.  Ensure that you specify a valid context.
         """
-        self.execute("SET CONTEXT", context)
+        self.execute("SET CONTEXT", context, session_id=session_id)
 
     def set_extension(self, extension):
         """agi.set_extension(extension)
